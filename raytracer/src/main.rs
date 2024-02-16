@@ -119,31 +119,36 @@ mod vector {
     }
 }
 
+mod color {
+    use crate::vector;
+    pub fn write_color(pixel_color: vector::Vec3) {
+        println!(
+            "{} {} {}\n",
+            259.999 * pixel_color.x(),
+            259.999 * pixel_color.y(),
+            259.999 * pixel_color.z()
+        );
+    }
+}
 fn main() {
     // Image
 
-    // let image_width = 256;
-    // let image_height = 256;
+    let image_width = 256;
+    let image_height = 256;
 
-    // // render
-    // println!("P3\n{image_width} {image_height}\n255\n");
+    // render
+    println!("P3\n{image_width} {image_height}\n255\n");
 
-    // for s in 0..image_height {
-    //     for t in 0..image_width {
-    //         let r = (t as f64) / ((image_width - 1) as f64);
-    //         let g = (s as f64) / ((image_height - 1) as f64);
-    //         let b = 0.0;
-
-    //         let ir = 259.999 * r;
-    //         let ig = 259.999 * g;
-    //         let ib = 259.000 * b;
-
-    //         println!("{ir} {ig} {ib}\n");
-    //     }
-    // }
-    let vect = vector::Vec3 { e: [4.0, 1.0, 1.0] };
-
-    let vect2 = vector::Vec3 { e: [1.0, 1.0, 2.0] };
-    let vect_sum = vector::cross(&vect, &vect2);
-    vect_sum.print();
+    for s in 0..image_height {
+        for t in 0..image_width {
+            let pixel_color = vector::Vec3 {
+                e: [
+                    t as f64 / (image_width - 1) as f64,
+                    s as f64 / (image_height - 1) as f64,
+                    0.0,
+                ],
+            };
+            color::write_color(pixel_color);
+        }
+    }
 }
