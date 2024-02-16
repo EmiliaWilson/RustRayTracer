@@ -5,8 +5,27 @@ mod vector;
 use vector::Vec3 as Color;
 use vector::Vec3 as Point3;
 
+fn hit_sphere(center: Point3, radius: f64, r: ray::Ray) -> bool {
+    let oc = r.origin() - center;
+    let a = vector::dot(&r.direction(), &r.direction());
+    let b = 2.0 * vector::dot(&oc, &r.direction());
+    let c = vector::dot(&oc, &oc) - radius * radius;
+    let discriminant = b * b - 4.0 * a * c;
+    return discriminant >= 0.0;
+}
+
 fn ray_color(r: ray::Ray) -> Color {
-    let unit_direction = r.direcction().unit_vector();
+    if (hit_sphere(
+        Point3 {
+            e: [0.0, 0.0, -1.0],
+        },
+        0.5,
+        r,
+    )) {
+        return Color { e: [1.0, 0.0, 0.0] };
+    }
+
+    let unit_direction = r.direction().unit_vector();
     let a = 0.5 * (unit_direction.y() + 1.0);
     return Color { e: [1.0; 3] } * (1.0 - a) + Color { e: [0.5, 0.7, 1.0] } * a;
 }

@@ -2,6 +2,7 @@ use crate::vector;
 
 use vector::Vec3 as Point3;
 
+#[derive(Copy, Clone)]
 pub struct Ray {
     pub orig: Point3,
     pub dir: vector::Vec3,
@@ -12,7 +13,7 @@ impl Ray {
         return self.orig;
     }
 
-    pub fn direcction(&self) -> vector::Vec3 {
+    pub fn direction(&self) -> vector::Vec3 {
         return self.dir;
     }
 
