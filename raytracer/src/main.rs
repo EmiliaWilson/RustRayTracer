@@ -7,15 +7,15 @@ use vector::Vec3 as Point3;
 
 fn hit_sphere(center: Point3, radius: f64, r: ray::Ray) -> f64 {
     let oc = r.origin() - center;
-    let a = vector::dot(&r.direction(), &r.direction());
-    let b = 2.0 * vector::dot(&oc, &r.direction());
-    let c = vector::dot(&oc, &oc) - radius * radius;
-    let discriminant = b * b - 4.0 * a * c;
+    let a = r.direction().length_squared();
+    let half_b = vector::dot(&oc, &r.direction());
+    let c = oc.length_squared() - radius * radius;
+    let discriminant = half_b * half_b - a * c;
 
-    if (discriminant < 0.0) {
+    if discriminant < 0.0 {
         return -1.0;
     } else {
-        return (-b - discriminant.sqrt()) / (2.0 * a);
+        return (-half_b - discriminant.sqrt()) / a;
     }
 }
 
@@ -27,7 +27,7 @@ fn ray_color(r: ray::Ray) -> Color {
         0.5,
         r,
     );
-    if (t > 0.0) {
+    if t > 0.0 {
         let normal = r.at(t)
             - vector::Vec3 {
                 e: [0.0, 0.0, -1.0],
