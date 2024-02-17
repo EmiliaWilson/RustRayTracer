@@ -5,24 +5,36 @@ mod vector;
 use vector::Vec3 as Color;
 use vector::Vec3 as Point3;
 
-fn hit_sphere(center: Point3, radius: f64, r: ray::Ray) -> bool {
+fn hit_sphere(center: Point3, radius: f64, r: ray::Ray) -> f64 {
     let oc = r.origin() - center;
     let a = vector::dot(&r.direction(), &r.direction());
     let b = 2.0 * vector::dot(&oc, &r.direction());
     let c = vector::dot(&oc, &oc) - radius * radius;
     let discriminant = b * b - 4.0 * a * c;
-    return discriminant >= 0.0;
+
+    if (discriminant < 0.0) {
+        return -1.0;
+    } else {
+        return (-b - discriminant.sqrt()) / (2.0 * a);
+    }
 }
 
 fn ray_color(r: ray::Ray) -> Color {
-    if (hit_sphere(
+    let t = hit_sphere(
         Point3 {
             e: [0.0, 0.0, -1.0],
         },
         0.5,
         r,
-    )) {
-        return Color { e: [1.0, 0.0, 0.0] };
+    );
+    if (t > 0.0) {
+        let normal = r.at(t)
+            - vector::Vec3 {
+                e: [0.0, 0.0, -1.0],
+            };
+        return Color {
+            e: [normal.x() + 1.0, normal.y() + 1.0, normal.z() + 1.0],
+        } * 0.5;
     }
 
     let unit_direction = r.direction().unit_vector();
