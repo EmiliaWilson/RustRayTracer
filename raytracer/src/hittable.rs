@@ -3,37 +3,38 @@ use crate::vector;
 
 use vector::Vec3 as Point3;
 
-struct Hit_record {
-    p: Point3,
-    normal: vector::Vec3,
-    t: f64,
+#[derive(Clone, Copy)]
+pub struct HitRecord {
+    pub p: Point3,
+    pub normal: vector::Vec3,
+    pub t: f64,
 }
 
-impl Hit_record {
-    fn new(p: Point3, normal: vector::Vec3, t: f64) -> Hit_record {
-        Hit_record { p, normal, t }
+impl HitRecord {
+    pub fn new(p: Point3, normal: vector::Vec3, t: f64) -> Self {
+        HitRecord { p, normal, t }
     }
 
-    fn set_normal_face(&mut self, r: &ray::Ray, outward_normal: &vector::Vec3) {
+    pub fn set_normal_face(&mut self, r: &ray::Ray, outward_normal: &vector::Vec3) {
         //Sets the hit record normal vector.
         // NOTE: the param outward_normal is assumed to have unit length
 
-        let front_face = vector::dot(r.direction(), outward_normal) < 0.0;
+        let front_face = vector::dot(&r.direction(), outward_normal) < 0.0;
         self.normal = if front_face {
-            outward_normal
+            *outward_normal
         } else {
-            -outward_normal
+            -*outward_normal
         };
     }
 }
 
-trait Hittable {
-    fn hit(&self, r: &ray::Ray, ray_tmin: f64, ray_tmax: f64, rec: &Hit_record) -> bool;
+pub trait Hittable {
+    fn hit(&mut self, r: &ray::Ray, ray_tmin: f64, ray_tmax: f64, rec: &mut HitRecord) -> bool;
 }
 
-struct Sphere {
-    center: Point3,
-    radius: f64,
+pub struct Sphere {
+    pub center: Point3,
+    pub radius: f64,
 }
 
 impl Sphere {
@@ -43,7 +44,7 @@ impl Sphere {
 }
 
 impl Hittable for Sphere {
-    fn hit(&self, r: &ray::Ray, ray_tmin: f64, ray_tmax: f64, rec: &Hit_record) -> bool {
+    fn hit(&mut self, r: &ray::Ray, ray_tmin: f64, ray_tmax: f64, rec: &mut HitRecord) -> bool {
         let oc = r.origin() - self.center;
         let a = r.direction().length_squared();
         let half_b = vector::dot(&oc, &r.direction());
@@ -66,7 +67,7 @@ impl Hittable for Sphere {
         rec.t = root;
         rec.p = r.at(rec.t);
         let outward_normal: vector::Vec3 = (rec.p - self.center) / self.radius;
-        rec.set_face_normal(r, outward_normal);
+        rec.set_normal_face(r, &outward_normal);
 
         return true;
     }
