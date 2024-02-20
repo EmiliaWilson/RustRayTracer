@@ -23,6 +23,7 @@ impl Camera {
     pub const ASPECT_RATIO: f64 = 16.0 / 9.0;
     pub const IMAGE_WIDTH: i32 = 400;
     pub const SAMPLES_PER_PIXEL: i32 = 100;
+    pub const MAX_DEPTH: i32 = 50;
 
     pub fn new() -> Camera {
         Camera {
@@ -46,7 +47,7 @@ impl Camera {
                 let mut pixel_color = Color::new(0.0, 0.0, 0.0);
                 for _sample in 0..Self::SAMPLES_PER_PIXEL {
                     let r = self.get_ray(t, s);
-                    pixel_color = pixel_color + Self::ray_color(r, world);
+                    pixel_color = pixel_color + Self::ray_color(r, Self::MAX_DEPTH, world);
                 }
                 color::write_color(pixel_color, Self::SAMPLES_PER_PIXEL);
             }
@@ -85,15 +86,24 @@ impl Camera {
         self.pixel00_loc = viewport_upper_left + (self.pixel_delta_u + self.pixel_delta_v) * 0.5f64;
     }
 
-    fn ray_color(r: ray::Ray, world: &mut dyn hittable::Hittable) -> Color {
+    fn ray_color(r: ray::Ray, depth: i32, world: &mut dyn hittable::Hittable) -> Color {
         let mut hit_record = hittable::HitRecord::new(
             vector::Vec3 { e: [0.0; 3] },
             vector::Vec3 { e: [0.0; 3] },
             0.0,
         );
 
-        if world.hit(&r, interval::Interval::new(0.0, INFINITY), &mut hit_record) {
-            return (hit_record.normal + Color::new(1.0, 1.0, 1.0)) * 0.5;
+        if depth <= 0 {
+            return Color::new(0.0, 0.0, 0.0);
+        }
+
+        if world.hit(
+            &r,
+            interval::Interval::new(0.001, INFINITY),
+            &mut hit_record,
+        ) {
+            let direction = hit_record.normal + vector::Vec3::random_unit_vector();
+            return Self::ray_color(ray::Ray::new(hit_record.p, direction), depth - 1, world) * 0.5;
         }
 
         let unit_direction = r.direction().unit_vector();

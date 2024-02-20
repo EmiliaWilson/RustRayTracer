@@ -1,3 +1,7 @@
+use std::cell::OnceCell;
+
+use crate::utility::random_double;
+
 #[derive(Copy, Clone)]
 pub struct Vec3 {
     pub e: [f64; 3],
@@ -29,6 +33,36 @@ impl Vec3 {
 
     pub fn unit_vector(&self) -> Vec3 {
         return *self / self.length();
+    }
+
+    pub fn random_unit_vector() -> Vec3 {
+        return Self::random_in_unit_sphere().unit_vector();
+    }
+
+    pub fn random_on_hemisphere(normal: &Vec3) -> Vec3 {
+        let on_unit_sphere = Self::random_unit_vector();
+        if dot(&on_unit_sphere, normal) > 0.0 {
+            return on_unit_sphere;
+        } else {
+            return -on_unit_sphere;
+        }
+    }
+
+    pub fn random_in_unit_sphere() -> Vec3 {
+        loop {
+            let p = Self::random(-1.0, 1.0);
+            if p.length_squared() < 1.0 {
+                return p;
+            }
+        }
+    }
+
+    pub fn random(min: f64, max: f64) -> Vec3 {
+        Self::new(
+            random_double(min, max),
+            random_double(min, max),
+            random_double(min, max),
+        )
     }
 
     // currently only prints to stdout, might need to change
