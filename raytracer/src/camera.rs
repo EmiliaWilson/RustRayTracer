@@ -40,6 +40,7 @@ impl Camera {
         println!("P3\n{} {}\n255\n", Self::IMAGE_WIDTH, self.image_height);
 
         for s in 0..self.image_height {
+            eprintln!("\rScanlines remaining: {} ", self.image_height - s);
             for t in 0..Self::IMAGE_WIDTH {
                 let pixel_center = self.pixel00_loc
                     + (self.pixel_delta_u * t as f64)
@@ -54,6 +55,8 @@ impl Camera {
                 color::write_color(pixel_color);
             }
         }
+
+        eprintln!("\rDone.       \n");
     }
 
     fn initialize(&mut self) {
