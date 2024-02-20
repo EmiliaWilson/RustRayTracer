@@ -9,6 +9,9 @@ pub struct Ray {
 }
 
 impl Ray {
+    pub fn new(orig: Point3, dir: vector::Vec3) -> Ray {
+        Ray { orig, dir }
+    }
     pub fn origin(&self) -> Point3 {
         return self.orig;
     }

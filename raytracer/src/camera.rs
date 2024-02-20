@@ -22,6 +22,7 @@ pub struct Camera {
 impl Camera {
     pub const ASPECT_RATIO: f64 = 16.0 / 9.0;
     pub const IMAGE_WIDTH: i32 = 400;
+    pub const SAMPLES_PER_PIXEL: i32 = 100;
 
     pub fn new() -> Camera {
         Camera {
@@ -42,17 +43,12 @@ impl Camera {
         for s in 0..self.image_height {
             eprintln!("\rScanlines remaining: {} ", self.image_height - s);
             for t in 0..Self::IMAGE_WIDTH {
-                let pixel_center = self.pixel00_loc
-                    + (self.pixel_delta_u * t as f64)
-                    + (self.pixel_delta_v * s as f64);
-                let ray_direction = pixel_center - self.center;
-                let r = ray::Ray {
-                    orig: self.center,
-                    dir: ray_direction,
-                };
-
-                let pixel_color = Self::ray_color(r, world);
-                color::write_color(pixel_color);
+                let mut pixel_color = Color::new(0.0, 0.0, 0.0);
+                for _sample in 0..Self::SAMPLES_PER_PIXEL {
+                    let r = self.get_ray(t, s);
+                    pixel_color = pixel_color + Self::ray_color(r, world);
+                }
+                color::write_color(pixel_color, Self::SAMPLES_PER_PIXEL);
             }
         }
 
@@ -103,5 +99,21 @@ impl Camera {
         let unit_direction = r.direction().unit_vector();
         let a = 0.5 * (unit_direction.y() + 1.0);
         return Color { e: [1.0; 3] } * (1.0 - a) + Color { e: [0.5, 0.7, 1.0] } * a;
+    }
+
+    fn get_ray(&self, i: i32, j: i32) -> ray::Ray {
+        let pixel_center = self.pixel00_loc + (self.pixel_delta_u * i) + (self.pixel_delta_v * j);
+        let pixel_sample = pixel_center + self.pixel_sample_square();
+
+        let ray_origin = self.center;
+        let ray_direction = pixel_sample - ray_origin;
+
+        return ray::Ray::new(ray_origin, ray_direction);
+    }
+
+    fn pixel_sample_square(&self) -> vector::Vec3 {
+        let px = -0.5 + utility::random_double(0.0, 1.0);
+        let py = -0.5 + utility::random_double(0.0, 1.0);
+        return (self.pixel_delta_u * px) + (self.pixel_delta_v * py);
     }
 }

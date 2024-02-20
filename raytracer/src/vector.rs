@@ -106,6 +106,20 @@ impl std::ops::Mul<f64> for Vec3 {
     }
 }
 
+impl std::ops::Mul<i32> for Vec3 {
+    type Output = Self;
+
+    fn mul(self, _rhs: i32) -> Self::Output {
+        Self {
+            e: [
+                self.e[0] * _rhs as f64,
+                self.e[1] * _rhs as f64,
+                self.e[2] * _rhs as f64,
+            ],
+        }
+    }
+}
+
 pub fn dot(u: &Vec3, v: &Vec3) -> f64 {
     return u.e[0] * v.e[0] + u.e[1] * v.e[1] + u.e[2] * v.e[2];
 }
