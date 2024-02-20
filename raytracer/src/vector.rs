@@ -1,5 +1,3 @@
-use std::cell::OnceCell;
-
 use crate::utility::random_double;
 
 #[derive(Copy, Clone)]
@@ -21,6 +19,11 @@ impl Vec3 {
 
     pub fn z(&self) -> f64 {
         return self.e[2];
+    }
+
+    pub fn near_zero(&self) -> bool {
+        let s = 1e-8;
+        return (self.e[0].abs() < s) && (self.e[1].abs() < s) && (self.e[2].abs() < s);
     }
 
     pub fn length_squared(&self) -> f64 {
@@ -152,6 +155,24 @@ impl std::ops::Mul<i32> for Vec3 {
             ],
         }
     }
+}
+
+impl std::ops::Mul<Vec3> for Vec3 {
+    type Output = Self;
+
+    fn mul(self, _rhs: Vec3) -> Self::Output {
+        Self {
+            e: [
+                self.e[0] * _rhs.e[0],
+                self.e[1] * _rhs.e[1],
+                self.e[2] * _rhs.e[2],
+            ],
+        }
+    }
+}
+
+pub fn reflect(v: &Vec3, n: &Vec3) -> Vec3 {
+    return *v - *n * 2.0 * dot(v, n);
 }
 
 pub fn dot(u: &Vec3, v: &Vec3) -> f64 {

@@ -3,6 +3,7 @@ mod color;
 mod hittable;
 mod hittable_list;
 mod interval;
+mod material;
 mod ray;
 mod utility;
 mod vector;
@@ -16,17 +17,40 @@ use vector::Vec3 as Color;
 use vector::Vec3 as Point3;
 
 fn main() {
+    // Materials
+    let mut mat_ground =
+        material::Material::Lambertian(material::Lambertian::new(Color::new(0.8, 0.8, 0.0)));
+    let mut mat_center =
+        material::Material::Lambertian(material::Lambertian::new(Color::new(0.7, 0.3, 0.3)));
+    let mut mat_left = material::Material::Metal(material::Metal::new(Color::new(0.8, 0.8, 0.8)));
+    let mut mat_right = material::Material::Metal(material::Metal::new(Color::new(0.8, 0.6, 0.2)));
+
     // World
     let world_list = Vec::new();
     let mut world = hittable_list::HittableList::new(world_list);
-    world.add(Box::new(hittable::Sphere::new(
-        Point3::new(0.0, 0.0, -1.0),
-        0.5,
-    )));
 
     world.add(Box::new(hittable::Sphere::new(
         Point3::new(0.0, -100.5, -1.0),
         100.0,
+        mat_ground,
+    )));
+
+    world.add(Box::new(hittable::Sphere::new(
+        Point3::new(0.0, 0.0, -1.0),
+        0.5,
+        mat_center,
+    )));
+
+    world.add(Box::new(hittable::Sphere::new(
+        Point3::new(-1.0, 0.0, -1.0),
+        0.5,
+        mat_left,
+    )));
+
+    world.add(Box::new(hittable::Sphere::new(
+        Point3::new(1.0, 0.0, -1.0),
+        0.5,
+        mat_right,
     )));
 
     // Camera

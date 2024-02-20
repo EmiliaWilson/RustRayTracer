@@ -1,6 +1,7 @@
 use crate::color;
 use crate::hittable;
 use crate::interval;
+use crate::material;
 use crate::ray;
 use crate::utility;
 use crate::vector;
@@ -90,6 +91,7 @@ impl Camera {
         let mut hit_record = hittable::HitRecord::new(
             vector::Vec3 { e: [0.0; 3] },
             vector::Vec3 { e: [0.0; 3] },
+            material::Material::Lambertian(material::Lambertian::new(Color::new(0.0, 0.0, 0.0))),
             0.0,
         );
 
@@ -102,8 +104,19 @@ impl Camera {
             interval::Interval::new(0.001, INFINITY),
             &mut hit_record,
         ) {
-            let direction = hit_record.normal + vector::Vec3::random_unit_vector();
-            return Self::ray_color(ray::Ray::new(hit_record.p, direction), depth - 1, world) * 0.5;
+            let mut scattered = ray::Ray::new(
+                vector::Vec3::new(0.0, 0.0, 0.0),
+                vector::Vec3::new(0.0, 0.0, 0.0),
+            );
+            let mut attenuation = Color::new(0.0, 0.0, 0.0);
+
+            if hit_record
+                .mat
+                .scatter(&r, &hit_record, &mut attenuation, &mut scattered)
+            {
+                return attenuation * Self::ray_color(scattered, depth - 1, world);
+            }
+            return Color::new(0.0, 0.0, 0.0);
         }
 
         let unit_direction = r.direction().unit_vector();

@@ -1,5 +1,6 @@
 use crate::hittable;
 use crate::interval;
+use crate::material;
 use crate::ray;
 use crate::vector;
 
@@ -34,6 +35,9 @@ impl hittable::Hittable for HittableList {
         let mut temp_rec = hittable::HitRecord::new(
             vector::Vec3 { e: [0.0; 3] },
             vector::Vec3 { e: [0.0; 3] },
+            material::Material::Lambertian(material::Lambertian::new(vector::Vec3::new(
+                0.0, 0.0, 0.0,
+            ))),
             0.0,
         );
         let mut hit_anything = false;

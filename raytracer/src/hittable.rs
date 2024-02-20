@@ -1,4 +1,5 @@
 use crate::interval;
+use crate::material;
 use crate::ray;
 use crate::vector;
 
@@ -8,12 +9,13 @@ use vector::Vec3 as Point3;
 pub struct HitRecord {
     pub p: Point3,
     pub normal: vector::Vec3,
+    pub mat: material::Material,
     pub t: f64,
 }
 
 impl HitRecord {
-    pub fn new(p: Point3, normal: vector::Vec3, t: f64) -> Self {
-        HitRecord { p, normal, t }
+    pub fn new(p: Point3, normal: vector::Vec3, mat: material::Material, t: f64) -> Self {
+        HitRecord { p, normal, mat, t }
     }
 
     pub fn set_normal_face(&mut self, r: &ray::Ray, outward_normal: &vector::Vec3) {
@@ -36,11 +38,16 @@ pub trait Hittable {
 pub struct Sphere {
     pub center: Point3,
     pub radius: f64,
+    pub mat: material::Material,
 }
 
 impl Sphere {
-    pub fn new(center: Point3, radius: f64) -> Sphere {
-        Sphere { center, radius }
+    pub fn new(center: Point3, radius: f64, mat: material::Material) -> Sphere {
+        Sphere {
+            center,
+            radius,
+            mat,
+        }
     }
 }
 
@@ -69,6 +76,7 @@ impl Hittable for Sphere {
         rec.p = r.at(rec.t);
         let outward_normal: vector::Vec3 = (rec.p - self.center) / self.radius;
         rec.set_normal_face(r, &outward_normal);
+        rec.mat = self.mat;
 
         return true;
     }
