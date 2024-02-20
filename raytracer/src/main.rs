@@ -4,39 +4,21 @@ mod hittable_list;
 mod ray;
 mod vector;
 
+use std::boxed::Box;
+use std::vec::Vec;
+
 use vector::Vec3 as Color;
 use vector::Vec3 as Point3;
 
-fn hit_sphere(center: Point3, radius: f64, r: ray::Ray) -> f64 {
-    let oc = r.origin() - center;
-    let a = r.direction().length_squared();
-    let half_b = vector::dot(&oc, &r.direction());
-    let c = oc.length_squared() - radius * radius;
-    let discriminant = half_b * half_b - a * c;
-
-    if discriminant < 0.0 {
-        return -1.0;
-    } else {
-        return (-half_b - discriminant.sqrt()) / a;
-    }
-}
-
-fn ray_color(r: ray::Ray) -> Color {
-    let t = hit_sphere(
-        Point3 {
-            e: [0.0, 0.0, -1.0],
-        },
-        0.5,
-        r,
+fn ray_color(r: ray::Ray, world: &mut dyn hittable::Hittable) -> Color {
+    let mut hit_record = hittable::HitRecord::new(
+        vector::Vec3 { e: [0.0; 3] },
+        vector::Vec3 { e: [0.0; 3] },
+        0.0,
     );
-    if t > 0.0 {
-        let normal = r.at(t)
-            - vector::Vec3 {
-                e: [0.0, 0.0, -1.0],
-            };
-        return Color {
-            e: [normal.x() + 1.0, normal.y() + 1.0, normal.z() + 1.0],
-        } * 0.5;
+
+    if world.hit(&r, 0.0, std::f64::INFINITY, &mut hit_record) {
+        return (hit_record.normal + Color::new(1.0, 1.0, 1.0)) * 0.5;
     }
 
     let unit_direction = r.direction().unit_vector();
@@ -49,6 +31,19 @@ fn main() {
     let aspect_ratio = 16.0 / 9.0;
     let image_width = 400;
     let image_height = (image_width as f64 / aspect_ratio) as i32;
+
+    // World
+    let world_list = Vec::new();
+    let mut world = hittable_list::HittableList::new(world_list);
+    world.add(Box::new(hittable::Sphere::new(
+        Point3::new(0.0, 0.0, -1.0),
+        0.5,
+    )));
+
+    world.add(Box::new(hittable::Sphere::new(
+        Point3::new(0.0, -100.5, -1.0),
+        100.0,
+    )));
 
     // Camera values
     let focal_length = 1.0;
@@ -87,7 +82,7 @@ fn main() {
                 dir: ray_direction,
             };
 
-            let pixel_color = ray_color(r);
+            let pixel_color = ray_color(r, &mut world);
             color::write_color(pixel_color);
         }
     }

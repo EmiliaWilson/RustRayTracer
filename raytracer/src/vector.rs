@@ -4,6 +4,9 @@ pub struct Vec3 {
 }
 
 impl Vec3 {
+    pub fn new(x: f64, y: f64, z: f64) -> Self {
+        Vec3 { e: [x, y, z] }
+    }
     pub fn x(&self) -> f64 {
         return self.e[0];
     }
