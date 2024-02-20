@@ -1,3 +1,4 @@
+use crate::interval;
 use crate::ray;
 use crate::vector;
 
@@ -29,7 +30,7 @@ impl HitRecord {
 }
 
 pub trait Hittable {
-    fn hit(&mut self, r: &ray::Ray, ray_tmin: f64, ray_tmax: f64, rec: &mut HitRecord) -> bool;
+    fn hit(&mut self, r: &ray::Ray, ray_t: interval::Interval, rec: &mut HitRecord) -> bool;
 }
 
 pub struct Sphere {
@@ -44,7 +45,7 @@ impl Sphere {
 }
 
 impl Hittable for Sphere {
-    fn hit(&mut self, r: &ray::Ray, ray_tmin: f64, ray_tmax: f64, rec: &mut HitRecord) -> bool {
+    fn hit(&mut self, r: &ray::Ray, ray_t: interval::Interval, rec: &mut HitRecord) -> bool {
         let oc = r.origin() - self.center;
         let a = r.direction().length_squared();
         let half_b = vector::dot(&oc, &r.direction());
@@ -58,9 +59,9 @@ impl Hittable for Sphere {
 
         // find nearest root
         let mut root = (-half_b - sqrtd) / a;
-        if root <= ray_tmin || ray_tmax <= root {
+        if !ray_t.surrounds(root) {
             root = (-half_b + sqrtd) / a;
-            if root <= ray_tmin || ray_tmax <= root {
+            if !ray_t.surrounds(root) {
                 return false;
             }
         }
