@@ -37,6 +37,14 @@ impl Vec3 {
     pub fn unit_vector(&self) -> Vec3 {
         return *self / self.length();
     }
+    pub fn random_in_unit_disk() -> Vec3 {
+        loop {
+            let p = Vec3::new(random_double(-1.0, 1.0), random_double(-1.0, 1.0), 0.0);
+            if p.length_squared() < 1.0 {
+                return p;
+            }
+        }
+    }
 
     pub fn random_unit_vector() -> Vec3 {
         return Self::random_in_unit_sphere().unit_vector();
