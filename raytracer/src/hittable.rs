@@ -11,19 +11,32 @@ pub struct HitRecord {
     pub normal: vector::Vec3,
     pub mat: material::Material,
     pub t: f64,
+    pub front_face: bool,
 }
 
 impl HitRecord {
-    pub fn new(p: Point3, normal: vector::Vec3, mat: material::Material, t: f64) -> Self {
-        HitRecord { p, normal, mat, t }
+    pub fn new(
+        p: Point3,
+        normal: vector::Vec3,
+        mat: material::Material,
+        t: f64,
+        front_face: bool,
+    ) -> Self {
+        HitRecord {
+            p,
+            normal,
+            mat,
+            t,
+            front_face,
+        }
     }
 
     pub fn set_normal_face(&mut self, r: &ray::Ray, outward_normal: &vector::Vec3) {
         //Sets the hit record normal vector.
         // NOTE: the param outward_normal is assumed to have unit length
 
-        let front_face = vector::dot(&r.direction(), outward_normal) < 0.0;
-        self.normal = if front_face {
+        self.front_face = vector::dot(&r.direction(), outward_normal) < 0.0;
+        self.normal = if self.front_face {
             *outward_normal
         } else {
             -*outward_normal

@@ -93,6 +93,7 @@ impl Camera {
             vector::Vec3 { e: [0.0; 3] },
             material::Material::Lambertian(material::Lambertian::new(Color::new(0.0, 0.0, 0.0))),
             0.0,
+            true,
         );
 
         if depth <= 0 {

@@ -39,6 +39,7 @@ impl hittable::Hittable for HittableList {
                 0.0, 0.0, 0.0,
             ))),
             0.0,
+            true,
         );
         let mut hit_anything = false;
         let mut closest_so_far = ray_t.max;

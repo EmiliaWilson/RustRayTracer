@@ -21,9 +21,10 @@ fn main() {
     let mut mat_ground =
         material::Material::Lambertian(material::Lambertian::new(Color::new(0.8, 0.8, 0.0)));
     let mut mat_center =
-        material::Material::Lambertian(material::Lambertian::new(Color::new(0.7, 0.3, 0.3)));
-    let mut mat_left = material::Material::Metal(material::Metal::new(Color::new(0.8, 0.8, 0.8)));
-    let mut mat_right = material::Material::Metal(material::Metal::new(Color::new(0.8, 0.6, 0.2)));
+        material::Material::Lambertian(material::Lambertian::new(Color::new(0.1, 0.2, 0.5)));
+    let mut mat_left = material::Material::Dielectric(material::Dielectric::new(1.5));
+    let mut mat_right =
+        material::Material::Metal(material::Metal::new(Color::new(0.8, 0.6, 0.2), 0.0));
 
     // World
     let world_list = Vec::new();
