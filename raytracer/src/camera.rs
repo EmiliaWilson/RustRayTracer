@@ -32,9 +32,9 @@ pub struct Camera {
 
 impl Camera {
     pub const ASPECT_RATIO: f64 = 16.0 / 9.0;
-    pub const IMAGE_WIDTH: i32 = 400;
+    pub const IMAGE_WIDTH: i32 = 1200;
     pub const VFOV: i32 = 20;
-    pub const SAMPLES_PER_PIXEL: i32 = 100;
+    pub const SAMPLES_PER_PIXEL: i32 = 200;
     pub const MAX_DEPTH: i32 = 50;
     pub fn new() -> Camera {
         Camera {
