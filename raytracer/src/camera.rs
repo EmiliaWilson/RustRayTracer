@@ -18,14 +18,20 @@ pub struct Camera {
     pixel00_loc: Point3,
     pixel_delta_u: vector::Vec3,
     pixel_delta_v: vector::Vec3,
+    pub look_from: Point3,
+    pub look_at: Point3,
+    v_up: vector::Vec3,
+    u: vector::Vec3,
+    v: vector::Vec3,
+    w: vector::Vec3,
 }
 
 impl Camera {
     pub const ASPECT_RATIO: f64 = 16.0 / 9.0;
     pub const IMAGE_WIDTH: i32 = 400;
+    pub const VFOV: i32 = 20;
     pub const SAMPLES_PER_PIXEL: i32 = 100;
     pub const MAX_DEPTH: i32 = 50;
-
     pub fn new() -> Camera {
         Camera {
             image_height: 0,
@@ -33,6 +39,12 @@ impl Camera {
             pixel00_loc: Point3::new(0.0, 0.0, 0.0),
             pixel_delta_u: vector::Vec3::new(0.0, 0.0, 0.0),
             pixel_delta_v: vector::Vec3::new(0.0, 0.0, 0.0),
+            look_from: vector::Vec3::new(0.0, 0.0, -1.0),
+            look_at: vector::Vec3::new(0.0, 0.0, 0.0),
+            v_up: vector::Vec3::new(0.0, 1.0, 0.0),
+            u: vector::Vec3::new(0.0, 0.0, 0.0),
+            v: vector::Vec3::new(0.0, 0.0, 0.0),
+            w: vector::Vec3::new(0.0, 0.0, 0.0),
         }
     }
 
@@ -64,26 +76,27 @@ impl Camera {
         } else {
             calc_image_height as i32
         };
-        self.center = Point3::new(0.0, 0.0, 0.0);
+        self.center = self.look_from;
 
-        let focal_length = 1.0;
-        let viewport_height = 2.0;
+        let focal_length = (self.look_from - self.look_at).length();
+        let theta = utility::degrees_to_radians(Self::VFOV as f64);
+        let h = (theta / 2.0).tan();
+        let viewport_height = 2.0 * h * focal_length;
         let viewport_width =
             viewport_height * (Self::IMAGE_WIDTH as f64 / self.image_height as f64);
-        let camera_center = Point3::new(0.0, 0.0, 0.0);
 
-        let viewport_u = vector::Vec3::new(viewport_width, 0.0, 0.0);
-        let viewport_v = vector::Vec3::new(0.0, -viewport_height, 0.0);
+        self.w = (self.look_from - self.look_at).unit_vector();
+        self.u = vector::cross(&self.v_up, &self.w).unit_vector();
+        self.v = vector::cross(&self.w, &self.u);
+
+        let viewport_u = self.u * viewport_width;
+        let viewport_v = -self.v * viewport_height;
 
         self.pixel_delta_u = viewport_u / Self::IMAGE_WIDTH as f64;
         self.pixel_delta_v = viewport_v / self.image_height as f64;
 
-        let viewport_upper_left = camera_center
-            - vector::Vec3 {
-                e: [0.0, 0.0, focal_length],
-            }
-            - viewport_u / 2.0
-            - viewport_v / 2.0;
+        let viewport_upper_left =
+            self.center - (self.w * focal_length) - viewport_u / 2.0 - viewport_v / 2.0;
         self.pixel00_loc = viewport_upper_left + (self.pixel_delta_u + self.pixel_delta_v) * 0.5f64;
     }
 

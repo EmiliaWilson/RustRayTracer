@@ -49,6 +49,12 @@ fn main() {
     )));
 
     world.add(Box::new(hittable::Sphere::new(
+        Point3::new(-1.0, 0.0, -1.0),
+        -0.4,
+        mat_left,
+    )));
+
+    world.add(Box::new(hittable::Sphere::new(
         Point3::new(1.0, 0.0, -1.0),
         0.5,
         mat_right,
@@ -56,5 +62,7 @@ fn main() {
 
     // Camera
     let mut cam = camera::Camera::new();
+    cam.look_from = Point3::new(-2.0, 2.0, 1.0);
+    cam.look_at = Point3::new(0.0, 0.0, -1.0);
     cam.render(&mut world);
 }
